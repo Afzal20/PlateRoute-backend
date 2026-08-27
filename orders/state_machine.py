@@ -11,6 +11,13 @@ TRANSITIONS = {
     "ready": {"picked", "cancelled_restaurant", "cancelled_platform"},
     "picked": {"out", "delivered", "cancelled_platform"},
     "out": {"delivered", "cancelled_platform"},
+    "delivered": {"refund_pending"},
+    "rejected": {"refund_pending", "refunded"},
+    "cancelled_customer": {"refund_pending"},
+    "cancelled_restaurant": {"refund_pending"},
+    "cancelled_platform": {"refund_pending"},
+    "failed_payment": {"refunded"},
+    "refund_pending": {"refunded"},
 }
 
 TERMINAL = {"rejected", "cancelled_customer", "cancelled_restaurant", "cancelled_platform",

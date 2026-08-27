@@ -12,8 +12,7 @@ class Command(BaseCommand):
         pending = OutboxMessage.objects.filter(processed_at__isnull=True).order_by("created_at")
         count = 0
         for msg in pending:
-            handler = HANDLERS.get(msg.kind)
-            if handler:
+            for handler in HANDLERS.get(msg.kind, []):
                 handler(msg.payload)
             msg.processed_at = timezone.now()
             msg.save(update_fields=["processed_at"])
