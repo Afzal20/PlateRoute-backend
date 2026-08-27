@@ -4,9 +4,9 @@
 | Field | Value |
 | --- | --- |
 | Document | docs/PROJECT_PLAN.md |
-| Version | 1.1 |
+| Version | 1.2 |
 | Date | 2026-08-27 |
-| Revision | 1.0 initial plan; 1.1 added three-client Flutter mobile strategy and related requirements |
+| Revision | 1.0 initial plan; 1.1 added three-client Flutter mobile strategy; 1.2 integrated direct messaging and voice-call scope per docs/ARCHITECTURE.md |
 | Status | Draft for review |
 | Owner | Backend team |
 | Applies to | `backend/` Django service and the planned `mobile/` Flutter monorepo |
@@ -80,11 +80,13 @@ Priorities use MoSCoW: Must (MVP-blocking), Should (ship soon after MVP), Could 
 9. Ratings and reviews after completion (M)
 10. Admin basics: live orders monitor, moderation, refunds workflow (M)
 11. Analytics views for operators and restaurant owners (S)
+12. In-app direct messaging between customers, restaurant staff, and couriers, scoped to order and support contexts (M)
+13. One-to-one voice calls over a data channel between order participants with identity masking, no phone numbers exposed (M)
 
 ### 5.2 Out of scope for v1
 - Scheduled or pre-orders at future time slots
 - Group wallets, split payments, buy-now-pay-later
-- In-app voice or video calls between parties
+- Group chats and video conferencing; single 1:1 data-channel voice ships first under FR-CAL (see docs/ARCHITECTURE.md sections 10-11)
 - Loyalty points and referral engine
 - Subscription billing tiers for restaurants
 - Platform-owned dark-store inventory model
@@ -113,7 +115,7 @@ Patterns to carry forward into every new module: environment-driven settings; an
 
 ## 7. Functional Requirements
 
-Requirement IDs follow `FR-<DOMAIN>-<NN>` so tickets can trace back to this document.
+Requirement IDs follow `FR-<DOMAIN>-<NN>` so tickets can trace back to this document. Direct messaging and voice-calling functional detail lives in docs/ARCHITECTURE.md sections 10 and 11; those flows are requirement sources of equal standing referenced by the roadmap below.
 
 ### 7.1 Accounts and Authentication (FR-AUTH)
 
@@ -264,7 +266,7 @@ Recommended stack decisions (revisit only via ADR):
 | Localization | intl with ARB files, en default and bn included |
 | CI distribution | GitHub Actions or Codemagic lanes per flavor; Firebase App Distribution for Android and TestFlight for iOS testers |
 
-OS-level prerequisites treated as requirements, not chores: purpose strings and manifest permissions for camera, photo library, notifications, and (Courier only) background location; store privacy disclosures drafted alongside feature work rather than at submission time.
+OS-level prerequisites treated as requirements, not chores: purpose strings and manifest permissions for camera, photo library, notifications, and (Courier only) background location; store privacy disclosures drafted alongside feature work rather than at submission time. Per-app UI design instructions encoding personas, color psychology, screen specifications, and motion systems live at `docs/design/CUSTOMER_APP_UI.md`, `docs/design/MERCHANT_APP_UI.md`, and `docs/design/COURIER_APP_UI.md`; their tokens export into `packages/core_ui`.
 
 ### 8.2 Common Mobile Requirements (MOB-C)
 
@@ -463,9 +465,9 @@ Phases sized in sprints for one senior backend developer with frontend workstrea
 | M1 | Platform readiness | PostgreSQL plus Redis plus Celery rollout, Docker compose, CI running tests, staging deploy, transactional email cutover, email verification endpoint (FR-AUTH-01 remainder), Flutter monorepo scaffold with generated `api_client` package wired into CI | Staging deploys from a green pipeline; verification flow passes end to end; Dart client compiles against current schema in CI |
 | M2 | Catalog | Restaurant onboarding and approvals, menu and options CRUD, media to bucket, search, catalog caching (FR-CAT all); merchant app ships menu manager and order board modules | Two seeded restaurants browsable through API with sub-second cached reads; merchant app performs a full menu-edit round trip on staging |
 | M3 | Ordering core | Addresses, cart, pricing service, coupons, idempotent checkout, order state machine with events, restaurant accept console endpoints (FR-CART, FR-ORD-01..07) | Happy-path order reaches READY_FOR_PICKUP with exact money math and full audit trail; customer app completes quote-and-reconfirm checkout end to end against staging |
-| M4 | Fulfillment | Delivery tasks, courier endpoints, allocation loop, location ingestion, Channels-based tracking, FCM wiring (FR-DLV-01..04, FR-NOT-02/03) | Courier app completes pickup and dropoff while customer watches live movement |
+| M4 | Fulfillment | Delivery tasks, courier endpoints, allocation loop, location ingestion, Channels-based tracking, FCM wiring, chat realtime foundation bootstrap (FR-DLV-01..04, FR-NOT-02/03) | Courier app completes pickup and dropoff while customer watches live movement |
 | M5 | Money | Stripe integration and COD ledger, webhooks, refunds workflow, VAT invoices, reconciliation skeleton (FR-PAY) | Paid, refunded, and COD orders reconcile clean for one week in staging |
-| M6 | Trust and launch | Reviews, notification center, dispatch dashboard v1, runtime config service (powering MOB-C-12 force-update floors), load testing, penetration-test fixes, UAT (remaining Must items) | Pilot go-live checklist signed off by operations; app-store submissions approved or pilot whitelisting active for all three apps |
+| M6 | Trust and launch | Reviews, notification center, dispatch dashboard v1, runtime config service (powering MOB-C-12 force-update floors), one-to-one voice call enablement behind an ops toggle, load testing, penetration-test fixes, UAT (remaining Must items) | Pilot go-live checklist signed off by operations; app-store submissions approved or pilot whitelisting active for all three apps |
 | M7 | Growth wave | bKash/Nagad adapters, reporting portals, bulk menu import, scheduled-order evaluation, bn localization | Backlog driven, no gate |
 
 Sequencing notes: payments work enters shadow mode during M4 to de-risk M5; PostGIS adoption is evaluated at M4 exit rather than assumed upfront; every phase updates this document's status columns as part of its definition of done. Client shells start early on shared packages so app parity grows alongside backend phases instead of trailing them; the merchant shell shadows M2 flows against staging before its modules ship, and the customer shell does the same during M3.
@@ -520,6 +522,7 @@ Sequencing notes: payments work enters shadow mode during M4 to de-risk M5; Post
 8. Multi-restaurant pooled baskets remain out of v1 unless product overrides (recommendation: out).
 9. Confirm the mobile device floor (proposal Android 8.0 and iOS 14) balancing field-device reality against background-location UX targets.
 10. Payment UX path: native Stripe sheet plus hosted wallet redirects now, or waiting for certified bKash/Nagad app-switch flows before exposing wallet buttons.
+11. Voice infrastructure hosting confirmation (recommendation self-hosted LiveKit SFU plus coturn pair, sized per ARCHITECTURE.md section 11).
 
 ## 18. Glossary
 
