@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     "dj_rest_auth",
     "accounts",
     "common",
+    "addresses",
 ]
 
 MIDDLEWARE = [

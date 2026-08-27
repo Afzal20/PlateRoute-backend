@@ -11,5 +11,6 @@ def api(user, method, path, data=None, **kw):
     """Authenticated DRF request helper; path is relative to /api."""
     client = APIClient()
     client.force_authenticate(user) if user else None
-    return getattr(client, method)(f"/api{path}", data, format="json", **kw)
+    kwargs = {"format": "json", **kw} if data is not None else kw
+    return getattr(client, method)(f"/api{path}", data, **kwargs)
 
