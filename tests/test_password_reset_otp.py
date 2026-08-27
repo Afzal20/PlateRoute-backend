@@ -174,3 +174,56 @@ class PasswordResetOTPFlowTests(TestCase):
         # The code was not consumed by the failed attempt.
         retry = self._confirm(code)
         self.assertEqual(retry.status_code, 200, retry.content)
+
+
+class PasswordResetOTPEmailTemplateTests(TestCase):
+    """Covers the branded OTP email (plain text + styled HTML alternative)."""
+
+    def setUp(self):
+        cache.clear()
+        self.email = "template@example.com"
+
+    def _send(self, code="AaB3&E5#"):
+        from accounts.views import _send_reset_otp_email
+
+        _send_reset_otp_email(self.email, code)
+        self.assertEqual(len(mail.outbox), 1)
+        return mail.outbox[0]
+
+    def test_message_has_text_part_and_html_alternative(self):
+        msg = self._send()
+        self.assertEqual(msg.subject, "Your PlateRoute password reset code")
+        self.assertEqual(msg.to, [self.email])
+        # The existing email-parsing helper keeps working off the text part.
+        self.assertEqual(extract_code_from_email(msg.body), "AaB3&E5#")
+        self.assertEqual(len(msg.alternatives), 1)
+        html, mime_type = msg.alternatives[0]
+        self.assertEqual(mime_type, "text/html")
+
+    def test_html_shows_every_character_and_escapes_specials(self):
+        code = "AaB3&E5#"
+        msg = self._send(code)
+        html = msg.alternatives[0][0]
+
+        # '&' inside codes is escaped by autoescape — never rendered raw.
+        self.assertIn("AaB3&amp;E5#", html)
+        self.assertNotIn("AaB3&E5#", html)
+        # One bordered tile per character.
+        self.assertEqual(html.count('class="code-char"'), len(code))
+        # Tap-to-select copy line + validity info are present.
+        self.assertIn("user-select:all", html)
+        self.assertIn(f"Expires in {PasswordResetOTP.TTL_MINUTES} minutes", html)
+        self.assertIn("Works only once", html)
+
+    def test_plain_text_contains_usage_guidance(self):
+        body = self._send().body
+        lowered = body.lower()
+        for fragment in (
+            "your password reset code is:",
+            "can only be used once",
+            "case-insensitive",
+            f"{PasswordResetOTP.TTL_MINUTES} minutes",
+            "didn't request",
+        ):
+            self.assertIn(fragment, lowered)
+

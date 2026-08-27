@@ -1,8 +1,9 @@
 import logging
 
 from django.conf import settings
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.shortcuts import redirect
+from django.template.loader import render_to_string
 from rest_framework import generics, permissions, serializers, status
 from rest_framework.response import Response
 
@@ -77,14 +78,24 @@ class GoogleLoginView(generics.GenericAPIView):
 
 
 def _send_reset_otp_email(to_email, code):
-    subject = "Your password reset code"
-    message = (
-        f"Your password reset code is:\n\n{code}\n\n"
-        f"The code is valid for {PasswordResetOTP.TTL_MINUTES} minutes "
-        "and can only be used once.\n"
-        "If you did not request a password reset, you can safely ignore this email."
+    """Deliver the OTP email as plain text plus a styled HTML alternative."""
+    context = {
+        "site_name": "PlateRoute",
+        "email": to_email,
+        "code": code,
+        "code_chars": list(code),
+        "ttl_minutes": PasswordResetOTP.TTL_MINUTES,
+    }
+    message = EmailMultiAlternatives(
+        subject=f"Your {context['site_name']} password reset code",
+        body=render_to_string("emails/password_reset_otp.txt", context),
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[to_email],
     )
-    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [to_email], fail_silently=False)
+    message.attach_alternative(
+        render_to_string("emails/password_reset_otp.html", context), "text/html"
+    )
+    message.send(fail_silently=False)
 
 
 class PasswordResetOTPRequestView(generics.GenericAPIView):
