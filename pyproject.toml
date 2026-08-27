@@ -13,6 +13,7 @@ dependencies = [
     "djangorestframework>=3.18.0",
     "djangorestframework-simplejwt[crypto]>=5.5.1",
     "drf-spectacular>=0.30.0",
+    "python-dotenv>=1.2.3",
 ]
 
 [project.scripts]
