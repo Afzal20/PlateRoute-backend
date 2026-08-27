@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     "menus",
     "discovery",
     "promotions",
+    "carts",
 ]
 
 MIDDLEWARE = [
