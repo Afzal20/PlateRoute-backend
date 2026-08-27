@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     "common",
     "addresses",
     "vendors",
+    "menus",
 ]
 
 MIDDLEWARE = [
