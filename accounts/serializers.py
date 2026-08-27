@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import Profile, User
-
+from .otp import OTP_LENGTH
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, validators=[validate_password])
@@ -52,3 +52,14 @@ class TokenObtainSerializer(serializers.Serializer):
             "access": str(refresh.access_token),
             "user": UserSerializer(user).data,
         }
+
+
+class PasswordResetOTPRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+
+class PasswordResetOTPConfirmSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    # Exactly OTP_LENGTH characters, matching the code format that is emailed.
+    otp = serializers.CharField(min_length=OTP_LENGTH, max_length=OTP_LENGTH)
+    new_password = serializers.CharField(write_only=True, validators=[validate_password])

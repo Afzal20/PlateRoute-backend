@@ -1,6 +1,54 @@
+from datetime import timedelta
+
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
+from django.utils import timezone
+
+from .otp import generate_otp, hash_otp
+
+
+class PasswordResetOTP(models.Model):
+    """A hashed, single-use, short-lived code for password resets.
+
+    The raw code is emailed to the user; only its SHA-256 hash is stored.
+    """
+
+    TTL_MINUTES = 15
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="password_otps")
+    code_hash = models.CharField(max_length=64)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    used = models.BooleanField(default=False)
+
+    class Meta:
+        indexes = [models.Index(fields=["code_hash"])]
+        ordering = ["-created_at"]
+
+    def save(self, *args, **kwargs):
+        if self._state.adding and self.expires_at is None:
+            self.expires_at = timezone.now() + timedelta(minutes=self.TTL_MINUTES)
+        super().save(*args, **kwargs)
+
+    @property
+    def is_expired(self):
+        return timezone.now() >= self.expires_at
+
+    def is_valid(self):
+        return not self.used and not self.is_expired
+
+    @classmethod
+    def issue(cls, user):
+        """Create a fresh code for ``user``, discarding outstanding ones.
+
+        Returns ``(instance, raw_code)`` — the raw code exists only long
+        enough to be emailed and is never written to the database.
+        """
+        cls.objects.filter(user=user, used=False).delete()
+        raw_code = generate_otp()
+        instance = cls.objects.create(user=user, code_hash=hash_otp(raw_code))
+        return instance, raw_code
 
 
 class UserManager(BaseUserManager):

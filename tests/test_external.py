@@ -7,6 +7,7 @@ PASSWORD = "AfzalTest123!"
 TOKEN = None
 REFRESH = None
 DEVICE1_TOKEN = None
+OTP_CODE = None
 
 
 def log(label, resp):
@@ -70,12 +71,12 @@ def profile_update():
     global EMAIL
     r = requests.patch(
         f"{BASE}/profile/",
-        json={"email": "updated@gmail.com"},
+        json={"email": "afzalhossen2019@gmail.com"},
         headers={"Authorization": f"Bearer {TOKEN}"},
     )
     log("Profile (PATCH)", r)
     if r.status_code == 200:
-        EMAIL = "updated@gmail.com"
+        EMAIL = "afzalhossen2019@gmail.com"
     return r.status_code == 200
 
 
@@ -107,9 +108,32 @@ def token_refresh():
     return False
 
 
-def password_reset():
-    r = requests.post(f"{BASE}/password-reset/", json={"email": EMAIL})
-    log("Password Reset", r)
+def request_password_reset_otp():
+    """Step 1: ask the API to email an 8-char OTP.
+
+    Requires the dev server to run with DJANGO_DEBUG=true so the response
+    echoes ``debug_otp`` (the console email backend writes to stdout which
+    this script cannot read).
+    """
+    global OTP_CODE
+    r = requests.post(f"{BASE}/password-reset-otp/", json={"email": EMAIL})
+    log("Password Reset OTP Request", r)
+    if r.status_code == 200:
+        OTP_CODE = r.json().get("debug_otp")
+        if not OTP_CODE:
+            print("  NOTE: no debug_otp returned — run server with DJANGO_DEBUG=true")
+        return True
+    return False
+
+
+def confirm_password_reset_otp():
+    """Step 2: verify the OTP and set the new password.
+
+    Reuses PASSWORD as the new password so the rest of the suite keeps working.
+    """
+    payload = {"email": EMAIL, "otp": OTP_CODE or "", "new_password": PASSWORD}
+    r = requests.post(f"{BASE}/password-reset-otp/confirm/", json=payload)
+    log("Password Reset OTP Confirm", r)
     return r.status_code == 200
 
 
@@ -164,7 +188,8 @@ if __name__ == "__main__":
         ("Login again", login),
         ("Logout All Devices", logout_all),
         ("Profile (after logout)", profile_after_logout),
-        ("Password Reset", password_reset),
+        ("Password Reset (request OTP)", request_password_reset_otp),
+        ("Password Reset (confirm OTP)", confirm_password_reset_otp),
         ("Google SSO Redirect", google_sso_redirect),
         ("Throttle Test", throttle_test),
     ]

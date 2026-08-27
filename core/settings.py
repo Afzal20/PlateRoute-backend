@@ -88,7 +88,7 @@ AUTH_USER_MODEL = "accounts.User"
 # DRF
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "account.authentication.VersionedJWTAuthentication",
+        "accounts.authentication.VersionedJWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
@@ -102,6 +102,8 @@ REST_FRAMEWORK = {
         "user": "60/minute",
         "login": "5/minute",
         "register": "3/hour",
+        "password_reset_request": "3/hour",
+        "password_reset_confirm": "10/minute",
     },
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 50,
@@ -152,14 +154,12 @@ EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
 EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "true").lower() == "true"
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "noreply@localhost")
 
-# dj-rest-auth
+# dj-rest-auth (JWT sessions only; password reset is handled by the
+# accounts app OTP flow, not dj-rest-auth's link-based emails)
 REST_AUTH = {
     "USE_JWT": True,
     "JWT_AUTH_HTTPONLY": False,
-    "PASSWORD_RESET_USE_SITES_DOMAIN": False,
-    "SEND_PASSWORD_RESET_EMAIL": True,
     "TOKEN_MODEL": None,
-    "PASSWORD_RESET_CONFIRM_URL": "api/auth/password-reset/confirm/{uid}/{token}",
 }
 
 # allauth
@@ -168,9 +168,8 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
-ACCOUNT_AUTHENTICATION_METHOD = "email"
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_LOGIN_METHODS = {"email"}
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
 ACCOUNT_UNIQUE_EMAIL = True
 
 # Google SSO

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from .models import User, Profile
+from .models import PasswordResetOTP, User, Profile
 
 
 @admin.register(User)
@@ -23,3 +23,11 @@ class UserAdmin(BaseUserAdmin):
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ("user", "token_version")
+
+
+@admin.register(PasswordResetOTP)
+class PasswordResetOTPTokenAdmin(admin.ModelAdmin):
+    list_display = ("user", "created_at", "expires_at", "used")
+    list_filter = ("used",)
+    search_fields = ("user__email",)
+    readonly_fields = ("user", "code_hash", "created_at", "expires_at", "used")
