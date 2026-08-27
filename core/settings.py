@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "addresses",
     "vendors",
     "menus",
+    "discovery",
 ]
 
 MIDDLEWARE = [
