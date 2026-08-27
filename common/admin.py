@@ -5,7 +5,7 @@ from .models import OutboxMessage, RuntimeConfig
 
 @admin.register(RuntimeConfig)
 class RuntimeConfigAdmin(admin.ModelAdmin):
-    list_display = ("key", "value", "version", "updated_at")
+    list_display = ("key", "value", "version")
 
 
 @admin.register(OutboxMessage)
