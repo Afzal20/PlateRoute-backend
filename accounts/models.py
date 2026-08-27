@@ -68,10 +68,18 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+    class Role(models.TextChoices):
+        CUSTOMER = "customer", "Customer"
+        VENDOR = "vendor", "Restaurant owner"
+        COURIER = "courier", "Courier"
+        OPERATOR = "operator", "Operator"
+
     email = models.EmailField(unique=True)
+    role = models.CharField(max_length=10, choices=Role.choices, default=Role.CUSTOMER)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
+    deleted_at = models.DateTimeField(null=True, blank=True)
 
     objects = UserManager()
 

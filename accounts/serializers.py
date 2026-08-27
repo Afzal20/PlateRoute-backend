@@ -19,7 +19,13 @@ class RegisterSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("id", "email")
+        fields = ("id", "email", "role")
+
+
+class RoleOnboardSerializer(serializers.Serializer):
+    """FR-AUTH-07: attach a vendor or courier role to the current user."""
+
+    role = serializers.ChoiceField(choices=["vendor", "courier"])
 
 
 class TokenObtainSerializer(serializers.Serializer):

@@ -9,7 +9,7 @@ from rest_framework.response import Response
 
 from .models import PasswordResetOTP, Profile, User
 from .otp import hash_otp
-from .serializers import RegisterSerializer, UserSerializer, TokenObtainSerializer
+from .serializers import RegisterSerializer, UserSerializer, TokenObtainSerializer, RoleOnboardSerializer
 from .serializers import PasswordResetOTPConfirmSerializer, PasswordResetOTPRequestSerializer
 from .throttles import (
     LoginThrottle,
@@ -38,6 +38,21 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class RoleOnboardView(generics.GenericAPIView):
+    """FR-AUTH-07: lets a customer become a vendor or courier."""
+
+    serializer_class = RoleOnboardSerializer
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        if request.user.role != User.Role.CUSTOMER:
+            return Response({"detail": "Role already assigned."}, status=status.HTTP_409_CONFLICT)
+        request.user.role = serializer.validated_data["role"]
+        request.user.save(update_fields=["role"])
+        return Response(UserSerializer(request.user).data)
 
 
 class LoginView(generics.GenericAPIView):

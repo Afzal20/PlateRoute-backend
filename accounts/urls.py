@@ -21,4 +21,5 @@ urlpatterns = [
     path("google/", include("allauth.socialaccount.urls")),
     path("google/login/", views.GoogleLoginView.as_view(), name="google_login"),
     path("profile/", views.ProfileView.as_view(), name="profile"),
+    path("role/", views.RoleOnboardView.as_view(), name="role_onboard"),
 ]
