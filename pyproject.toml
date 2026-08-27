@@ -8,8 +8,11 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "dj-rest-auth[socialaccount]>=7.2.0",
     "django>=6.1",
+    "django-allauth[socialaccount]>=65.19.1",
     "django-cors-headers>=4.9.0",
+    "django-notifications-hq>=1.8.3",
     "djangorestframework>=3.18.0",
     "djangorestframework-simplejwt[crypto]>=5.5.1",
     "drf-spectacular>=0.30.0",
