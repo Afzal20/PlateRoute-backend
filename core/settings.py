@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "delivery",
     "chat",
     "calls",
+    "notifications",
 ]
 
 MIDDLEWARE = [

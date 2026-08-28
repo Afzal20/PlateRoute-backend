@@ -10,11 +10,15 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         pending = OutboxMessage.objects.filter(processed_at__isnull=True).order_by("created_at")
-        count = 0
+        count = failures = 0
         for msg in pending:
             for handler in HANDLERS.get(msg.kind, []):
-                handler(msg.payload)
+                try:
+                    handler(msg.payload)
+                except Exception as exc:  # a bad event never starves the queue
+                    failures += 1
+                    self.stderr.write(f"handler for {msg.kind} failed: {exc}")
             msg.processed_at = timezone.now()
             msg.save(update_fields=["processed_at"])
             count += 1
-        self.stdout.write(f"pumped {count} outbox message(s)")
+        self.stdout.write(f"pumped {count} outbox message(s){f' ({failures} handler failure(s))' if failures else ''}")
