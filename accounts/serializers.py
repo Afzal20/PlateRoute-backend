@@ -20,6 +20,41 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("id", "email", "role")
+        read_only_fields = ("role",)  # role changes ONLY via the /role/ onboarding endpoint — never a direct write
+
+
+class ProfileUpdateSerializer(serializers.ModelSerializer):
+    """FR-AUTH-05: changing the account email requires the current password.
+
+    On success other sessions are logged out (token_version bump) so a leaked
+    session cannot silently rebind the account to an attacker's mailbox.
+    """
+
+    current_password = serializers.CharField(write_only=True, required=False)
+
+    class Meta:
+        model = User
+        fields = ("id", "email", "role", "current_password")
+        read_only_fields = ("role",)
+
+    def validate(self, attrs):
+        user = self.instance
+        if "email" in attrs and attrs["email"] != user.email:
+            password = attrs.pop("current_password", None)
+            if not password or not user.check_password(password):
+                raise serializers.ValidationError(
+                    {"current_password": "Current password is required to change the email."})
+        else:
+            attrs.pop("current_password", None)
+        return attrs
+
+    def update(self, instance, validated_data):
+        email_changed = "email" in validated_data and validated_data["email"] != instance.email
+        instance = super().update(instance, validated_data)
+        if email_changed:
+            profile, _ = Profile.objects.get_or_create(user=instance)
+            profile.bump_token_version()  # invalidate every other session (FR-AUTH-05)
+        return instance
 
 
 class RoleOnboardSerializer(serializers.Serializer):

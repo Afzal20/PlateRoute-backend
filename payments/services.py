@@ -14,13 +14,16 @@ from .models import Invoice, LedgerEntry, Payment, Refund
 @transaction.atomic
 def start(order, *, gateway_name):
     """Return the live payment for the order plus a client session payload."""
+    adapter = gateway(gateway_name)
+    if adapter is None:
+        raise DomainError("payment.gateway_unknown", "Unknown payment gateway.", 400)
     existing = getattr(order, "payment", None)
     if existing and existing.state in (Payment.State.INITIATED, Payment.State.AUTHORIZED, Payment.State.REQUIRES_ACTION):
         if existing.gateway == gateway_name:
-            return existing, gateway(gateway_name).create_session(existing)
+            return existing, adapter.create_session(existing)
         raise DomainError("payment.live_exists", "Cancel or complete the current payment first.", 409)
     payment = Payment.objects.create(order=order, gateway=gateway_name, amount_minor=order.grand_total_minor)
-    return payment, gateway(gateway_name).create_session(payment)
+    return payment, adapter.create_session(payment)
 
 
 @transaction.atomic

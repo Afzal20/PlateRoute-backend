@@ -2,6 +2,7 @@
 import hashlib
 import hmac
 import os
+import time
 
 from .models import Payment
 
@@ -25,18 +26,37 @@ class CodGateway(PaymentGateway):
 
 
 class StripeGateway(PaymentGateway):
-    """Skeleton: session shape matches the real SDK flow; swap body in M5."""
+    """Stripe's timestamped scheme: t=...,v1=... HMAC over ``t.body``.
+
+    The timestamp window defeats replay; compare_digest avoids timing leaks.
+    """
+
+    REPLAY_TOLERANCE_SECONDS = 300
 
     def create_session(self, payment):
         return {"mode": "hosted", "client_secret": f"cs_test_{payment.order.uuid}", "amount_minor": payment.amount_minor}
 
-    def verify_webhook(self, raw_body, signature):
+    def verify_webhook(self, raw_body, signature, timestamp=None):
         secret = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
-        if not secret:
+        if not secret or not signature:
             return False
-        expected = hmac.new(secret.encode(), raw_body, hashlib.sha256).hexdigest()
-        return hmac.compare_digest(expected, signature or "")
+        parts = dict(
+            (item.split("=", 1) for item in signature.split(",") if "=" in item)
+        )
+        ts, expected = parts.get("t"), parts.get("v1")
+        if not ts or not expected:
+            return False
+        try:
+            ts_i = int(ts)
+        except ValueError:
+            return False
+        if abs((timestamp or int(time.time())) - ts_i) > self.REPLAY_TOLERANCE_SECONDS:
+            return False  # stale signature: replay
+        signed = f"{ts_i}.{raw_body.decode()}".encode()
+        return hmac.compare_digest(hmac.new(secret.encode(), signed, hashlib.sha256).hexdigest(), expected)
 
 
 def gateway(kind):
-    return {"cod": CodGateway, "stripe": StripeGateway, "bkash": StripeGateway, "nagad": StripeGateway}[kind]()
+    """Return an adapter instance for ``kind`` or None (deny by default)."""
+    cls = {"cod": CodGateway, "stripe": StripeGateway, "bkash": StripeGateway, "nagad": StripeGateway}.get(kind)
+    return cls() if cls else None

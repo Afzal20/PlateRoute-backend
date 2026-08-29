@@ -9,8 +9,15 @@ from rest_framework.response import Response
 
 from .models import PasswordResetOTP, Profile, User
 from .otp import hash_otp
-from .serializers import RegisterSerializer, UserSerializer, TokenObtainSerializer, RoleOnboardSerializer
-from .serializers import PasswordResetOTPConfirmSerializer, PasswordResetOTPRequestSerializer
+from .serializers import (
+    PasswordResetOTPConfirmSerializer,
+    PasswordResetOTPRequestSerializer,
+    ProfileUpdateSerializer,
+    RegisterSerializer,
+    RoleOnboardSerializer,
+    TokenObtainSerializer,
+    UserSerializer,
+)
 from .throttles import (
     LoginThrottle,
     PasswordResetConfirmThrottle,
@@ -34,10 +41,13 @@ class RegisterView(generics.CreateAPIView):
 
 
 class ProfileView(generics.RetrieveUpdateAPIView):
-    serializer_class = UserSerializer
-
     def get_object(self):
         return self.request.user
+
+    def get_serializer_class(self):
+        # Reads use the light serializer; writes must satisfy the email
+        # re-auth gate and can never change the role (security: no escalation).
+        return ProfileUpdateSerializer if self.request.method in ("PUT", "PATCH") else UserSerializer
 
 
 class RoleOnboardView(generics.GenericAPIView):

@@ -129,13 +129,13 @@ REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "common.errors.handler",
 }
 
-# JWT
+# JWT — signing key kept separate from the session/encryption secret
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
-    "SIGNING_KEY": os.environ["DJANGO_SECRET_KEY"],
+    "SIGNING_KEY": os.environ.get("JWT_SIGNING_KEY") or os.environ["DJANGO_SECRET_KEY"],
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
 

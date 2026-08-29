@@ -60,10 +60,13 @@ class StripeWebhookTests(TestCase):
         self.order = Order.objects.get()
         self.secret = "whsec_test"
 
-    def _signed(self, body: dict):
+    def _signed(self, body: dict, ts=None):
+        import time as _time
         raw = json.dumps(body).encode()
-        sig = hmac.new(self.secret.encode(), raw, hashlib.sha256).hexdigest()
-        return raw, {"X-Signature": sig}
+        ts = int(_time.time()) if ts is None else int(ts)
+        signed = f"{ts}.{raw.decode()}".encode()
+        sig = hmac.new(self.secret.encode(), signed, hashlib.sha256).hexdigest()
+        return raw, {"X-Signature": f"t={ts},v1={sig}"}
 
     def test_session_and_webhook_capture(self):
         res = api(self.user, "post", f"/v1/payments/{self.order.uuid}/start/", {"gateway": "stripe"})
@@ -77,6 +80,22 @@ class StripeWebhookTests(TestCase):
             dup = self.client.post("/api/v1/payments/webhooks/stripe/", raw, content_type="application/json", headers=headers)
             self.assertEqual(dup.json(), {"detail": "duplicate"})
         self.assertEqual(Payment.objects.get(order=self.order).state, "captured")
+
+    def test_stale_signature_rejected_as_replay(self):
+        raw, headers = self._signed({"id": "evt_r"}, ts=0)  # 1970: far outside the 300s window
+        with mock.patch.dict("os.environ", {"STRIPE_WEBHOOK_SECRET": self.secret}):
+            res = self.client.post("/api/v1/payments/webhooks/stripe/", raw, content_type="application/json", headers=headers)
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res.json()["code"], "webhook.signature")
+
+    def test_unknown_provider_and_malformed_json(self):
+        with mock.patch.dict("os.environ", {"STRIPE_WEBHOOK_SECRET": self.secret}):
+            unknown = self.client.post("/api/v1/payments/webhooks/crypto-exchange/", b"{}", content_type="application/json", headers={"X-Signature": "x"})
+            self.assertEqual(unknown.status_code, 400)
+            self.assertEqual(unknown.json()["code"], "webhook.gateway_unknown")
+            # malformed JSON must be a 400, never a 500
+            malformed = self.client.post("/api/v1/payments/webhooks/stripe/", b"{not json", content_type="application/json", headers={"X-Signature": "t=1234,v1=abcd"})
+            self.assertEqual(malformed.status_code, 400)
 
     def test_refund_flow(self):
         for status in ("accepted", "preparing", "ready"):

@@ -10,6 +10,13 @@ from . import services
 from .models import Message, Participant, Report, Thread
 
 
+def _message_id(request):
+    try:
+        return int(request.data.get("message_id", 0))
+    except (TypeError, ValueError):
+        raise DomainError("chat.bad_message_id", "message_id must be an integer.", status.HTTP_400_BAD_REQUEST)
+
+
 def _thread_for(request, thread_uuid):
     thread = get_object_or_404(Thread, uuid=thread_uuid)
     if not Participant.objects.filter(thread=thread, user=request.user, left_at__isnull=True).exists():
@@ -72,13 +79,13 @@ class ReadView(APIView):
 
     def post(self, request, thread_uuid):
         thread = _thread_for(request, thread_uuid)
-        services.advance_watermark(request.user, thread, message_id=int(request.data.get("message_id", 0)))
+        services.advance_watermark(request.user, thread, message_id=_message_id(request))
         return Response({"unread": services.unread_count(thread, request.user)})
 
 
 class ReportView(APIView):
     def post(self, request, thread_uuid):
         thread = _thread_for(request, thread_uuid)
-        message = get_object_or_404(Message.objects.filter(thread=thread), id=int(request.data.get("message_id", 0)))
+        message = get_object_or_404(Message.objects.filter(thread=thread), id=_message_id(request))
         Report.objects.create(message=message, reported_by=request.user, reason=request.data.get("reason", "abuse"))
         return Response({"detail": "reported"}, status=status.HTTP_201_CREATED)

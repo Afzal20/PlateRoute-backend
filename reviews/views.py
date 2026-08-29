@@ -9,6 +9,13 @@ from orders.models import Order
 from .models import Review, ReviewReply
 
 
+def _stars(value, default=None):
+    try:
+        return int(value) if value is not None else default
+    except (TypeError, ValueError):
+        raise DomainError("review.bad_stars", "Stars must be an integer.", status.HTTP_400_BAD_REQUEST)
+
+
 class ReviewCreateView(APIView):
     """FR-RVW-01: a customer reviews their own, already-delivered order once."""
 
@@ -22,8 +29,8 @@ class ReviewCreateView(APIView):
             raise DomainError("review.already_exists", "This order is already reviewed.", status.HTTP_409_CONFLICT)
         body = (request.data.get("body") or "").strip()
         review = Review.objects.create(order=order,
-                                       restaurant_stars=int(request.data.get("restaurant_stars") or 5),
-                                       courier_stars=request.data.get("courier_stars"),
+                                       restaurant_stars=_stars(request.data.get("restaurant_stars"), 5),
+                                       courier_stars=_stars(request.data.get("courier_stars")),
                                        body=body[:1000] if isinstance(body, str) else body)
         return Response(self._serialize(review), status=status.HTTP_201_CREATED)
 

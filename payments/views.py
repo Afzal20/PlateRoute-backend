@@ -13,11 +13,21 @@ from .gateways import gateway
 from .models import Payment, Refund, WebhookEvent
 
 
+def _positive_int(value, default=0, code="input.bad_number"):
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        raise DomainError(code, f"{code} must be an integer.", status.HTTP_400_BAD_REQUEST)
+    return max(parsed, 0)
+
+
 def _participant_order(request, order_uuid):
     order = get_object_or_404(Order, uuid=order_uuid)
     is_operator = request.user.is_staff or request.user.role == "operator"
     if order.customer_id != request.user.id and not is_operator:
-        raise DomainError("payment.forbidden", "Not your order.", status.HTTP_403_FORBIDDEN)
+        # 404 (not 403) so the endpoint cannot confirm that other users'
+        # order UUIDs exist (avoid an existence oracle).
+        raise DomainError("payment.forbidden", "Not your order.", status.HTTP_404_NOT_FOUND)
     return order
 
 
@@ -47,9 +57,15 @@ class WebhookView(APIView):
 
     def post(self, request, provider):
         raw = request.body
-        if not gateway(provider).verify_webhook(raw, request.headers.get("X-Signature")):
+        adapter = gateway(provider)
+        if adapter is None:
+            raise DomainError("webhook.gateway_unknown", "Unknown gateway.", status.HTTP_400_BAD_REQUEST)
+        if not adapter.verify_webhook(raw, request.headers.get("X-Signature")):
             raise DomainError("webhook.signature", "Invalid webhook signature.", status.HTTP_400_BAD_REQUEST)
-        body = json.loads(raw or b"{}")
+        try:
+            body = json.loads(raw or b"{}")
+        except ValueError:
+            raise DomainError("webhook.bad_json", "Malformed payload.", status.HTTP_400_BAD_REQUEST)
         event, created = WebhookEvent.objects.get_or_create(
             provider=provider, event_id=body.get("id", ""), defaults={"payload": body})
         if not created:
@@ -72,7 +88,8 @@ class RefundRequestView(APIView):
 
     def post(self, request):
         order = _participant_order(request, request.data.get("order", ""))
-        refund = services.request_refund(order, user=request.user, amount_minor=int(request.data.get("amount_minor", 0)),
+        amount = _positive_int(request.data.get("amount_minor"), code="refund.amount_must_be_int")
+        refund = services.request_refund(order, user=request.user, amount_minor=amount,
                                          reason=request.data.get("reason", Refund.Reason.MISTAKE))
         return Response({"id": refund.id, "state": refund.state, "amount_minor": refund.amount_minor}, status=status.HTTP_201_CREATED)
 
