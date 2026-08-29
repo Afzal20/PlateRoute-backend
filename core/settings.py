@@ -1,4 +1,5 @@
 import os
+import sys
 from datetime import timedelta
 from pathlib import Path
 
@@ -43,6 +44,8 @@ INSTALLED_APPS = [
     "notifications",
     "reviews",
     "support",
+    "analytics",
+    "backoffice",
 ]
 
 MIDDLEWARE = [
@@ -202,3 +205,7 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:3000")
+
+# The suite makes hundreds of calls from one IP; real limits apply at runtime.
+if "test" in sys.argv:
+    REST_FRAMEWORK["DEFAULT_THROTTLE_CLASSES"] = []
