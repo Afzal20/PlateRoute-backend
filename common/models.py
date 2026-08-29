@@ -29,15 +29,24 @@ class RuntimeConfig(models.Model):
     version = models.PositiveBigIntegerField(default=1)
 
     @classmethod
+    def _cache_key(cls, key):
+        # Bind cache to the current version so bump-on-write invalidates reads.
+        version = cls.objects.values_list("version", flat=True).filter(key=key).first() or 0
+        return f"cfg:{key}:v{version}"
+
+    @classmethod
     def get(cls, key, default=None):
         from django.core.cache import cache
 
-        cached = cache.get(f"cfg:{key}")
-        if cached is None:
-            row = cls.objects.filter(key=key).first()
-            cached = row.value if row else default
-            cache.set(f"cfg:{key}", cached, 30)
-        return cached
+        try:
+            cached = cache.get(cls._cache_key(key))
+            if cached is None:
+                row = cls.objects.filter(key=key).first()
+                cached = row.value if row else default
+                cache.set(cls._cache_key(key), cached, 30)
+            return cached
+        except Exception:
+            return default
 
 
 class OutboxMessage(TimeStampedModel):
