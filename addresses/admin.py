@@ -5,10 +5,15 @@ from .models import Address, GeocodeCache
 
 @admin.register(Address)
 class AddressAdmin(admin.ModelAdmin):
-    list_display = ("label", "user", "city", "is_default")
-    search_fields = ("user__email", "city")
+    list_display = ("label", "user", "receiver_name", "phone", "city", "is_default", "created_at")
+    list_filter = ("city", "is_default")
+    search_fields = ("user__email", "receiver_name", "phone", "street", "area")
+    readonly_fields = ("uuid", "created_at", "updated_at")
 
 
 @admin.register(GeocodeCache)
 class GeocodeCacheAdmin(admin.ModelAdmin):
-    list_display = ("provider", "input_hash", "ttl_expires_at")
+    list_display = ("provider", "input_hash", "fetched_at", "ttl_expires_at")
+    list_filter = ("provider",)
+    search_fields = ("input_hash",)
+    readonly_fields = ("provider", "input_hash", "result", "fetched_at")
