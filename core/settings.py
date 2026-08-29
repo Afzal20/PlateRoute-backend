@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     "chat",
     "calls",
     "notifications",
+    "reviews",
+    "support",
 ]
 
 MIDDLEWARE = [
