@@ -16,11 +16,9 @@ dependencies = [
     "djangorestframework>=3.18.0",
     "djangorestframework-simplejwt[crypto]>=5.5.1",
     "drf-spectacular>=0.30.0",
+    "openai>=3.6.0",
     "python-dotenv>=1.2.3",
 ]
-
-[project.scripts]
-backend = "backend:main"
 
 [tool.uv]
 package = false
