@@ -1,0 +1,3263 @@
+openapi: 3.0.3
+info:
+  title: ''
+  version: 0.0.0
+paths:
+  /api/auth/google/login/:
+    get:
+      operationId: auth_google_login_retrieve
+      tags:
+      - auth
+      security:
+      - JWTAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/auth/login/:
+    post:
+      operationId: auth_login_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtain'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtain'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtain'
+        required: true
+      security:
+      - JWTAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtain'
+          description: ''
+  /api/auth/logout/:
+    post:
+      operationId: auth_logout_create
+      tags:
+      - auth
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/password-reset-otp/:
+    post:
+      operationId: auth_password_reset_otp_create
+      description: Emails an 8-character OTP (digits + letters + specials) to the
+        user.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetOTPRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordResetOTPRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordResetOTPRequest'
+        required: true
+      security:
+      - JWTAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PasswordResetOTPRequest'
+          description: ''
+  /api/auth/password-reset-otp/confirm/:
+    post:
+      operationId: auth_password_reset_otp_confirm_create
+      description: Verifies the emailed OTP and sets the new password.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetOTPConfirm'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordResetOTPConfirm'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordResetOTPConfirm'
+        required: true
+      security:
+      - JWTAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PasswordResetOTPConfirm'
+          description: ''
+  /api/auth/profile/:
+    get:
+      operationId: auth_profile_retrieve
+      tags:
+      - auth
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: auth_profile_update
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProfileUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProfileUpdate'
+        required: true
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileUpdate'
+          description: ''
+    patch:
+      operationId: auth_profile_partial_update
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedProfileUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedProfileUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedProfileUpdate'
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileUpdate'
+          description: ''
+  /api/auth/register/:
+    post:
+      operationId: auth_register_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Register'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Register'
+        required: true
+      security:
+      - JWTAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Register'
+          description: ''
+  /api/auth/role/:
+    post:
+      operationId: auth_role_create
+      description: 'FR-AUTH-07: lets a customer become a vendor or courier.'
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleOnboard'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RoleOnboard'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RoleOnboard'
+        required: true
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleOnboard'
+          description: ''
+  /api/auth/token/refresh/:
+    post:
+      operationId: auth_token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/healthz/:
+    get:
+      operationId: healthz_retrieve
+      description: /healthz liveness probing database and cache.
+      tags:
+      - healthz
+      security:
+      - JWTAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/schema/:
+    get:
+      operationId: schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - ht
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - ug
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - schema
+      security:
+      - JWTAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/addresses/:
+    get:
+      operationId: v1_addresses_list
+      description: 'FR-AUTH-08: the customer address book (max 20 entries).'
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAddressList'
+          description: ''
+    post:
+      operationId: v1_addresses_create
+      description: 'FR-AUTH-08: the customer address book (max 20 entries).'
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Address'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Address'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Address'
+        required: true
+      security:
+      - JWTAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+          description: ''
+  /api/v1/addresses/{uuid}/:
+    get:
+      operationId: v1_addresses_retrieve
+      description: 'FR-AUTH-08: the customer address book (max 20 entries).'
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+          description: ''
+    put:
+      operationId: v1_addresses_update
+      description: 'FR-AUTH-08: the customer address book (max 20 entries).'
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Address'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Address'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Address'
+        required: true
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+          description: ''
+    patch:
+      operationId: v1_addresses_partial_update
+      description: 'FR-AUTH-08: the customer address book (max 20 entries).'
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAddress'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAddress'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAddress'
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+          description: ''
+    delete:
+      operationId: v1_addresses_destroy
+      description: 'FR-AUTH-08: the customer address book (max 20 entries).'
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/addresses/{uuid}/default/:
+    post:
+      operationId: v1_addresses_default_create
+      description: 'FR-AUTH-08: the customer address book (max 20 entries).'
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Address'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Address'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Address'
+        required: true
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Address'
+          description: ''
+  /api/v1/backoffice/config/:
+    get:
+      operationId: v1_backoffice_config_retrieve
+      description: 'FR-ADM-03: runtime config CRUD without redeploy (cached 30s reads).'
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: v1_backoffice_config_create
+      description: 'FR-ADM-03: runtime config CRUD without redeploy (cached 30s reads).'
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/backoffice/orders/:
+    get:
+      operationId: v1_backoffice_orders_retrieve
+      description: 'FR-ADM-02: live orders board across every branch.'
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/backoffice/refunds/:
+    get:
+      operationId: v1_backoffice_refunds_retrieve
+      description: 'FR-ADM-02: pending refunds awaiting operator approval (FR-PAY-05).'
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: v1_backoffice_refunds_create
+      description: 'POST {refund_id, approve: true|false} — approve or reject in one
+        hop.'
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/branches/:
+    get:
+      operationId: v1_branches_list
+      description: Branch CRUD scoped to the vendor owner or invited branch staff.
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBranchList'
+          description: ''
+    post:
+      operationId: v1_branches_create
+      description: Branch CRUD scoped to the vendor owner or invited branch staff.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Branch'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Branch'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Branch'
+        required: true
+      security:
+      - JWTAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+          description: ''
+  /api/v1/branches/{uuid}/:
+    get:
+      operationId: v1_branches_retrieve
+      description: Branch CRUD scoped to the vendor owner or invited branch staff.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+          description: ''
+    put:
+      operationId: v1_branches_update
+      description: Branch CRUD scoped to the vendor owner or invited branch staff.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Branch'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Branch'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Branch'
+        required: true
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+          description: ''
+    patch:
+      operationId: v1_branches_partial_update
+      description: Branch CRUD scoped to the vendor owner or invited branch staff.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBranch'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedBranch'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedBranch'
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+          description: ''
+    delete:
+      operationId: v1_branches_destroy
+      description: Branch CRUD scoped to the vendor owner or invited branch staff.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/branches/{uuid}/hours/:
+    post:
+      operationId: v1_branches_hours_create
+      description: Bulk-replace the weekly opening-hours matrix.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Branch'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Branch'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Branch'
+        required: true
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+          description: ''
+  /api/v1/branches/{uuid}/team/:
+    get:
+      operationId: v1_branches_team_retrieve
+      description: List or invite branch staff members (FR-CAT-01).
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+          description: ''
+    post:
+      operationId: v1_branches_team_create
+      description: List or invite branch staff members (FR-CAT-01).
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Branch'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Branch'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Branch'
+        required: true
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+          description: ''
+  /api/v1/calls/:
+    post:
+      operationId: v1_calls_create
+      description: Start/accept/decline/end a 1:1 data-voice call (§11).
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/calls/{id}/:
+    post:
+      operationId: v1_calls_create_2
+      description: Start/accept/decline/end a 1:1 data-voice call (§11).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/calls/turn-credentials/:
+    get:
+      operationId: v1_calls_turn_credentials_retrieve
+      description: TURN REST API ephemeral credentials (HMAC over username-ttl, §11).
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/carts/:
+    get:
+      operationId: v1_carts_retrieve
+      description: 'FR-CART-01/03/05: my cart with a fresh server-computed quote per
+        read.'
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/carts/clear/:
+    post:
+      operationId: v1_carts_clear_create
+      description: 'FR-CART-01/03/05: my cart with a fresh server-computed quote per
+        read.'
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/carts/items/:
+    get:
+      operationId: v1_carts_items_list
+      description: Cart line CRUD; option groups validated on every write (FR-CART-02).
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCartItemList'
+          description: ''
+    post:
+      operationId: v1_carts_items_create
+      description: Cart line CRUD; option groups validated on every write (FR-CART-02).
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartItem'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CartItem'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CartItem'
+        required: true
+      security:
+      - JWTAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartItem'
+          description: ''
+  /api/v1/carts/items/{id}/:
+    get:
+      operationId: v1_carts_items_retrieve
+      description: Cart line CRUD; option groups validated on every write (FR-CART-02).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartItem'
+          description: ''
+    put:
+      operationId: v1_carts_items_update
+      description: Cart line CRUD; option groups validated on every write (FR-CART-02).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartItem'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CartItem'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CartItem'
+        required: true
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartItem'
+          description: ''
+    patch:
+      operationId: v1_carts_items_partial_update
+      description: Cart line CRUD; option groups validated on every write (FR-CART-02).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCartItem'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCartItem'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCartItem'
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartItem'
+          description: ''
+    delete:
+      operationId: v1_carts_items_destroy
+      description: Cart line CRUD; option groups validated on every write (FR-CART-02).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/chat/threads/:
+    get:
+      operationId: v1_chat_threads_retrieve
+      description: GET my threads with unread counts; POST bootstrap an order thread.
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: v1_chat_threads_create
+      description: GET my threads with unread counts; POST bootstrap an order thread.
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/chat/threads/{thread_uuid}/messages/:
+    get:
+      operationId: v1_chat_threads_messages_retrieve
+      description: Paged history, newest-last ordering by id (DR-006 offset pagination).
+      parameters:
+      - in: path
+        name: thread_uuid
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/chat/threads/{thread_uuid}/read/:
+    post:
+      operationId: v1_chat_threads_read_create
+      description: POST {message_id} advances this user's watermark (monotonic).
+      parameters:
+      - in: path
+        name: thread_uuid
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/chat/threads/{thread_uuid}/report/:
+    post:
+      operationId: v1_chat_threads_report_create
+      parameters:
+      - in: path
+        name: thread_uuid
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/chat/threads/{thread_uuid}/send/:
+    post:
+      operationId: v1_chat_threads_send_create
+      parameters:
+      - in: path
+        name: thread_uuid
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/config/:
+    get:
+      operationId: v1_config_retrieve
+      description: 'Public client-facing config: ?key=a&key=b -> {a: .., b: ..}.'
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/coupons/validate/:
+    post:
+      operationId: v1_coupons_validate_create
+      description: POST {code, subtotal_minor} -> discount preview (FR-CART-04).
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/delivery/offers/:
+    get:
+      operationId: v1_delivery_offers_retrieve
+      description: The courier's live, unexpired task offers.
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/delivery/offers/{id}/{action}/:
+    post:
+      operationId: v1_delivery_offers_create
+      description: POST /delivery/offers/{id}/claim|decline/ — accept-once semantics.
+      parameters:
+      - in: path
+        name: action
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/delivery/orders/{order_uuid}/tracking/:
+    get:
+      operationId: v1_delivery_orders_tracking_retrieve
+      description: Customer/merchant/courier view of a live order (FR-NOT-03 counterpart).
+      parameters:
+      - in: path
+        name: order_uuid
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/delivery/pings/:
+    post:
+      operationId: v1_delivery_pings_create
+      description: 'FR-DLV-04: batched telemetry ingest; optional task uuid per ping.'
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/delivery/profile/:
+    get:
+      operationId: v1_delivery_profile_retrieve
+      description: 'FR-DLV-03 / MOB-CUR-01: courier vehicle record + shift toggle.'
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: v1_delivery_profile_update
+      description: 'FR-DLV-03 / MOB-CUR-01: courier vehicle record + shift toggle.'
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/delivery/tasks/{uuid}/trip/:
+    post:
+      operationId: v1_delivery_tasks_trip_create
+      description: 'POST /delivery/tasks/{uuid}/trip/ {action: at_vendor|picked|arrived|dropped}.'
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/geocode/:
+    get:
+      operationId: v1_geocode_retrieve
+      description: Cache-first autocomplete/reverse proxy over the GeoProvider port
+        (§9).
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/menu/categories/:
+    get:
+      operationId: v1_menu_categories_list
+      description: 'Shared scoping for menu write surfaces: vendor-role + branch staff.'
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCategoryList'
+          description: ''
+    post:
+      operationId: v1_menu_categories_create
+      description: 'Shared scoping for menu write surfaces: vendor-role + branch staff.'
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Category'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Category'
+        required: true
+      security:
+      - JWTAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+  /api/v1/menu/categories/{uuid}/:
+    get:
+      operationId: v1_menu_categories_retrieve
+      description: 'Shared scoping for menu write surfaces: vendor-role + branch staff.'
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+    put:
+      operationId: v1_menu_categories_update
+      description: 'Shared scoping for menu write surfaces: vendor-role + branch staff.'
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Category'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Category'
+        required: true
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+    patch:
+      operationId: v1_menu_categories_partial_update
+      description: 'Shared scoping for menu write surfaces: vendor-role + branch staff.'
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCategory'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCategory'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCategory'
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+    delete:
+      operationId: v1_menu_categories_destroy
+      description: 'Shared scoping for menu write surfaces: vendor-role + branch staff.'
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/menu/items/:
+    get:
+      operationId: v1_menu_items_list
+      description: 'Shared scoping for menu write surfaces: vendor-role + branch staff.'
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedItemList'
+          description: ''
+    post:
+      operationId: v1_menu_items_create
+      description: 'Shared scoping for menu write surfaces: vendor-role + branch staff.'
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Item'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Item'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Item'
+        required: true
+      security:
+      - JWTAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+          description: ''
+  /api/v1/menu/items/{uuid}/:
+    get:
+      operationId: v1_menu_items_retrieve
+      description: 'Shared scoping for menu write surfaces: vendor-role + branch staff.'
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+          description: ''
+    put:
+      operationId: v1_menu_items_update
+      description: 'Shared scoping for menu write surfaces: vendor-role + branch staff.'
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Item'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Item'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Item'
+        required: true
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+          description: ''
+    patch:
+      operationId: v1_menu_items_partial_update
+      description: 'Shared scoping for menu write surfaces: vendor-role + branch staff.'
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedItem'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedItem'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedItem'
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+          description: ''
+    delete:
+      operationId: v1_menu_items_destroy
+      description: 'Shared scoping for menu write surfaces: vendor-role + branch staff.'
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/menu/items/{uuid}/toggle/:
+    post:
+      operationId: v1_menu_items_toggle_create
+      description: FR-CAT-03 availability switch, reflected immediately in discovery.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Item'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Item'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Item'
+        required: true
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+          description: ''
+  /api/v1/notifications/devices/:
+    post:
+      operationId: v1_notifications_devices_create
+      description: 'FR-NOT-02 / MOB-C-02: upsert an FCM token for push.'
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/notifications/preferences/:
+    get:
+      operationId: v1_notifications_preferences_retrieve
+      description: 'FR-AUTH-10: per-channel notification toggles.'
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: v1_notifications_preferences_create
+      description: 'FR-AUTH-10: per-channel notification toggles.'
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/orders/:
+    get:
+      operationId: v1_orders_list
+      description: Order history + place + guarded transitions (FR-ORD-01..08).
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedOrderList'
+          description: ''
+  /api/v1/orders/{uuid}/:
+    get:
+      operationId: v1_orders_retrieve
+      description: Order history + place + guarded transitions (FR-ORD-01..08).
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+  /api/v1/orders/{uuid}/transition/:
+    post:
+      operationId: v1_orders_transition_create
+      description: Order history + place + guarded transitions (FR-ORD-01..08).
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Order'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Order'
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+  /api/v1/orders/place/:
+    post:
+      operationId: v1_orders_place_create
+      description: POST /orders/place/ with Idempotency-Key header (FR-ORD-01/02).
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Order'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Order'
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+  /api/v1/payments/{order_uuid}/:
+    get:
+      operationId: v1_payments_retrieve
+      parameters:
+      - in: path
+        name: order_uuid
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/payments/{order_uuid}/start/:
+    post:
+      operationId: v1_payments_start_create
+      description: POST /payments/{order_uuid}/start -> live payment + client session.
+      parameters:
+      - in: path
+        name: order_uuid
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/payments/refunds/:
+    post:
+      operationId: v1_payments_refunds_create
+      description: POST /payments/refunds — customer asks for money back (FR-PAY-05).
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/payments/refunds/{id}/approve/:
+    post:
+      operationId: v1_payments_refunds_approve_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/payments/webhooks/{provider}/:
+    post:
+      operationId: v1_payments_webhooks_create
+      description: 'FR-PAY-03: verify HMAC, dedupe by event id, process after fast-ack.'
+      parameters:
+      - in: path
+        name: provider
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/reports/branches/{branch_uuid}/:
+    get:
+      operationId: v1_reports_branches_retrieve
+      description: 'FR-REP-02: merchant-facing sales summary from nightly aggregates.'
+      parameters:
+      - in: path
+        name: branch_uuid
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/restaurants/:
+    get:
+      operationId: v1_restaurants_retrieve
+      description: 'FR-CAT-05: approved-branch discovery. Read models only (§4 #5).'
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/restaurants/{id}/:
+    get:
+      operationId: v1_restaurants_retrieve_2
+      description: 'FR-CAT-05: approved-branch discovery. Read models only (§4 #5).'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/v1/reviews/:
+    post:
+      operationId: v1_reviews_create
+      description: 'FR-RVW-01: a customer reviews their own, already-delivered order
+        once.'
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/reviews/{id}/reply/:
+    post:
+      operationId: v1_reviews_reply_create
+      description: 'FR-RVW-02: the branch (owner or staff) replies on a review.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/reviews/branches/{branch_uuid}/:
+    get:
+      operationId: v1_reviews_branches_retrieve
+      description: Public reviews for a branch (visible ones only).
+      parameters:
+      - in: path
+        name: branch_uuid
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/support/tickets/:
+    get:
+      operationId: v1_support_tickets_retrieve
+      description: Open / list / status tickets (customer owns theirs; operators see
+        all).
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: v1_support_tickets_create
+      description: Open / list / status tickets (customer owns theirs; operators see
+        all).
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/support/tickets/{uuid}/:
+    get:
+      operationId: v1_support_tickets_retrieve_2
+      description: Thread of messages; operators see internal notes, customers do
+        not.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: v1_support_tickets_create_2
+      description: Thread of messages; operators see internal notes, customers do
+        not.
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/vendors/:
+    get:
+      operationId: v1_vendors_list
+      description: 'FR-CAT-01/02: vendor onboarding; submit moves draft -> pending
+        review.'
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: offset
+        required: false
+        in: query
+        description: The initial index from which to return the results.
+        schema:
+          type: integer
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedVendorList'
+          description: ''
+    post:
+      operationId: v1_vendors_create
+      description: 'FR-CAT-01/02: vendor onboarding; submit moves draft -> pending
+        review.'
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Vendor'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Vendor'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Vendor'
+        required: true
+      security:
+      - JWTAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+          description: ''
+  /api/v1/vendors/{slug}/:
+    get:
+      operationId: v1_vendors_retrieve
+      description: 'FR-CAT-01/02: vendor onboarding; submit moves draft -> pending
+        review.'
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+          description: ''
+    put:
+      operationId: v1_vendors_update
+      description: 'FR-CAT-01/02: vendor onboarding; submit moves draft -> pending
+        review.'
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Vendor'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Vendor'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Vendor'
+        required: true
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+          description: ''
+    patch:
+      operationId: v1_vendors_partial_update
+      description: 'FR-CAT-01/02: vendor onboarding; submit moves draft -> pending
+        review.'
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedVendor'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedVendor'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedVendor'
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+          description: ''
+    delete:
+      operationId: v1_vendors_destroy
+      description: 'FR-CAT-01/02: vendor onboarding; submit moves draft -> pending
+        review.'
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      security:
+      - JWTAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/vendors/{slug}/submit/:
+    post:
+      operationId: v1_vendors_submit_create
+      description: 'FR-CAT-01/02: vendor onboarding; submit moves draft -> pending
+        review.'
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Vendor'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Vendor'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Vendor'
+        required: true
+      security:
+      - JWTAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+          description: ''
+components:
+  schemas:
+    Address:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+        label:
+          type: string
+          maxLength: 50
+        receiver_name:
+          type: string
+          maxLength: 120
+        phone:
+          type: string
+          maxLength: 20
+        lat:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+        lng:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+        plus_code:
+          type: string
+          maxLength: 40
+        street:
+          type: string
+          maxLength: 255
+        area:
+          type: string
+          maxLength: 120
+        city:
+          type: string
+          maxLength: 80
+        postcode:
+          type: string
+          maxLength: 12
+        directions:
+          type: string
+        is_default:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - city
+      - created_at
+      - label
+      - lat
+      - lng
+      - phone
+      - receiver_name
+      - uuid
+    Branch:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+        vendor:
+          type: integer
+          readOnly: true
+        vendor_name:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 120
+        lat:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+        lng:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+        address_text:
+          type: string
+          maxLength: 255
+        city:
+          type: string
+          maxLength: 80
+        phone:
+          type: string
+          maxLength: 20
+        prep_minutes:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        min_order_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        currency:
+          type: string
+          maxLength: 3
+        open_hours: {}
+        open_now:
+          type: boolean
+          readOnly: true
+        avg_rating:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,1}(?:\.\d{0,2})?$
+        rating_count:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        is_accepting:
+          type: boolean
+      required:
+      - address_text
+      - city
+      - lat
+      - lng
+      - name
+      - open_now
+      - uuid
+      - vendor
+      - vendor_name
+    CartItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        item:
+          type: string
+          format: uuid
+        qty:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 1
+          format: int64
+        selected_options: {}
+        title_snapshot:
+          type: string
+          readOnly: true
+        unit_price_snapshot_minor:
+          type: integer
+          readOnly: true
+        line_total_minor:
+          type: integer
+          readOnly: true
+      required:
+      - id
+      - item
+      - line_total_minor
+      - title_snapshot
+      - unit_price_snapshot_minor
+    Category:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+        branch:
+          type: string
+          format: uuid
+          writeOnly: true
+        name:
+          type: string
+          maxLength: 120
+        position:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+      required:
+      - branch
+      - name
+      - uuid
+    Item:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+        category:
+          type: string
+          format: uuid
+          writeOnly: true
+        category_name:
+          type: string
+          readOnly: true
+        branch:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 150
+        description:
+          type: string
+        image_url:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        base_price_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        currency:
+          type: string
+          maxLength: 3
+        available:
+          type: boolean
+        sort_key:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/OptionGroup'
+      required:
+      - base_price_minor
+      - branch
+      - category
+      - category_name
+      - name
+      - uuid
+    Option:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        label:
+          type: string
+          maxLength: 120
+        price_delta_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        is_default:
+          type: boolean
+        available:
+          type: boolean
+      required:
+      - id
+      - label
+    OptionGroup:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 120
+        min_select:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        max_select:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/Option'
+      required:
+      - id
+      - title
+    Order:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/OrderStatusEnum'
+        branch:
+          type: string
+          format: uuid
+          readOnly: true
+        currency:
+          type: string
+          maxLength: 3
+        items_total_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        discount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        delivery_fee_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        vat_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        tip_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        grand_total_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        address: {}
+        eta: {}
+        placed_at:
+          type: string
+          format: date-time
+          readOnly: true
+        accepted_at:
+          type: string
+          format: date-time
+          nullable: true
+        delivered_at:
+          type: string
+          format: date-time
+          nullable: true
+        cancel_reason:
+          type: string
+          maxLength: 200
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+          readOnly: true
+      required:
+      - branch
+      - items
+      - placed_at
+      - uuid
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        menu_item_ref:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        title_snapshot:
+          type: string
+          maxLength: 150
+        qty:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        unit_price_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        options: {}
+        line_total_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+      required:
+      - id
+      - line_total_minor
+      - menu_item_ref
+      - qty
+      - title_snapshot
+      - unit_price_minor
+    OrderStatusEnum:
+      enum:
+      - placed
+      - accepted
+      - preparing
+      - ready
+      - picked
+      - out
+      - delivered
+      - rejected
+      - cancelled_customer
+      - cancelled_restaurant
+      - cancelled_platform
+      - failed_payment
+      - refund_pending
+      - refunded
+      type: string
+      description: |-
+        * `placed` - Placed
+        * `accepted` - Accepted
+        * `preparing` - Preparing
+        * `ready` - Ready for pickup
+        * `picked` - Picked up
+        * `out` - Out for delivery
+        * `delivered` - Delivered
+        * `rejected` - Rejected
+        * `cancelled_customer` - Cancelled by customer
+        * `cancelled_restaurant` - Cancelled by restaurant
+        * `cancelled_platform` - Cancelled by platform
+        * `failed_payment` - Failed payment
+        * `refund_pending` - Refund pending
+        * `refunded` - Refunded
+    PaginatedAddressList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
+    PaginatedBranchList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Branch'
+    PaginatedCartItemList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItem'
+    PaginatedCategoryList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+    PaginatedItemList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+    PaginatedOrderList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+    PaginatedVendorList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=400&limit=100
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?offset=200&limit=100
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Vendor'
+    PasswordResetOTPConfirm:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        otp:
+          type: string
+          maxLength: 8
+          minLength: 8
+        new_password:
+          type: string
+          writeOnly: true
+      required:
+      - email
+      - new_password
+      - otp
+    PasswordResetOTPRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+      - email
+    PatchedAddress:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+        label:
+          type: string
+          maxLength: 50
+        receiver_name:
+          type: string
+          maxLength: 120
+        phone:
+          type: string
+          maxLength: 20
+        lat:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+        lng:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+        plus_code:
+          type: string
+          maxLength: 40
+        street:
+          type: string
+          maxLength: 255
+        area:
+          type: string
+          maxLength: 120
+        city:
+          type: string
+          maxLength: 80
+        postcode:
+          type: string
+          maxLength: 12
+        directions:
+          type: string
+        is_default:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedBranch:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+        vendor:
+          type: integer
+          readOnly: true
+        vendor_name:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 120
+        lat:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+        lng:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+        address_text:
+          type: string
+          maxLength: 255
+        city:
+          type: string
+          maxLength: 80
+        phone:
+          type: string
+          maxLength: 20
+        prep_minutes:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        min_order_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        currency:
+          type: string
+          maxLength: 3
+        open_hours: {}
+        open_now:
+          type: boolean
+          readOnly: true
+        avg_rating:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,1}(?:\.\d{0,2})?$
+        rating_count:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        is_accepting:
+          type: boolean
+    PatchedCartItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        item:
+          type: string
+          format: uuid
+        qty:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 1
+          format: int64
+        selected_options: {}
+        title_snapshot:
+          type: string
+          readOnly: true
+        unit_price_snapshot_minor:
+          type: integer
+          readOnly: true
+        line_total_minor:
+          type: integer
+          readOnly: true
+    PatchedCategory:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+        branch:
+          type: string
+          format: uuid
+          writeOnly: true
+        name:
+          type: string
+          maxLength: 120
+        position:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+    PatchedItem:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+        category:
+          type: string
+          format: uuid
+          writeOnly: true
+        category_name:
+          type: string
+          readOnly: true
+        branch:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 150
+        description:
+          type: string
+        image_url:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        base_price_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        currency:
+          type: string
+          maxLength: 3
+        available:
+          type: boolean
+        sort_key:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/OptionGroup'
+    PatchedProfileUpdate:
+      type: object
+      description: |-
+        FR-AUTH-05: changing the account email requires the current password.
+
+        On success other sessions are logged out (token_version bump) so a leaked
+        session cannot silently rebind the account to an attacker's mailbox.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        role:
+          allOf:
+          - $ref: '#/components/schemas/Role35bEnum'
+          readOnly: true
+        current_password:
+          type: string
+          writeOnly: true
+    PatchedVendor:
+      type: object
+      properties:
+        slug:
+          type: string
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          maxLength: 120
+        legal_name:
+          type: string
+          maxLength: 200
+        trade_license_no:
+          type: string
+          maxLength: 60
+        cuisines: {}
+        status:
+          allOf:
+          - $ref: '#/components/schemas/VendorStatusEnum'
+          readOnly: true
+        commission_bp:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+    ProfileUpdate:
+      type: object
+      description: |-
+        FR-AUTH-05: changing the account email requires the current password.
+
+        On success other sessions are logged out (token_version bump) so a leaked
+        session cannot silently rebind the account to an attacker's mailbox.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        role:
+          allOf:
+          - $ref: '#/components/schemas/Role35bEnum'
+          readOnly: true
+        current_password:
+          type: string
+          writeOnly: true
+      required:
+      - email
+      - id
+      - role
+    Register:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - email
+      - id
+      - password
+    Role35bEnum:
+      enum:
+      - customer
+      - vendor
+      - courier
+      - operator
+      type: string
+      description: |-
+        * `customer` - Customer
+        * `vendor` - Restaurant owner
+        * `courier` - Courier
+        * `operator` - Operator
+    RoleOnboard:
+      type: object
+      description: 'FR-AUTH-07: attach a vendor or courier role to the current user.'
+      properties:
+        role:
+          $ref: '#/components/schemas/RoleOnboardRoleEnum'
+      required:
+      - role
+    RoleOnboardRoleEnum:
+      enum:
+      - vendor
+      - courier
+      type: string
+      description: |-
+        * `vendor` - vendor
+        * `courier` - courier
+    TokenObtain:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - email
+      - password
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        role:
+          allOf:
+          - $ref: '#/components/schemas/Role35bEnum'
+          readOnly: true
+      required:
+      - email
+      - id
+      - role
+    Vendor:
+      type: object
+      properties:
+        slug:
+          type: string
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          maxLength: 120
+        legal_name:
+          type: string
+          maxLength: 200
+        trade_license_no:
+          type: string
+          maxLength: 60
+        cuisines: {}
+        status:
+          allOf:
+          - $ref: '#/components/schemas/VendorStatusEnum'
+          readOnly: true
+        commission_bp:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+      required:
+      - name
+      - status
+    VendorStatusEnum:
+      enum:
+      - draft
+      - pending
+      - approved
+      - paused
+      - suspended
+      type: string
+      description: |-
+        * `draft` - Draft
+        * `pending` - Pending
+        * `approved` - Approved
+        * `paused` - Paused
+        * `suspended` - Suspended
+  securitySchemes:
+    JWTAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
