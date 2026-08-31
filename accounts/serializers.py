@@ -104,3 +104,7 @@ class PasswordResetOTPConfirmSerializer(serializers.Serializer):
     # Exactly OTP_LENGTH characters, matching the code format that is emailed.
     otp = serializers.CharField(min_length=OTP_LENGTH, max_length=OTP_LENGTH)
     new_password = serializers.CharField(write_only=True, validators=[validate_password])
+
+
+class SupabaseGoogleLoginSerializer(serializers.Serializer):
+    access_token = serializers.CharField(required=True)

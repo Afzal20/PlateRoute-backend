@@ -17,7 +17,10 @@ from .serializers import (
     RoleOnboardSerializer,
     TokenObtainSerializer,
     UserSerializer,
+    SupabaseGoogleLoginSerializer,
 )
+from rest_framework_simplejwt.tokens import RefreshToken
+from core.supabase import supabase
 from .throttles import (
     LoginThrottle,
     PasswordResetConfirmThrottle,
@@ -90,16 +93,42 @@ class LogoutAllView(generics.GenericAPIView):
 
 class GoogleLoginView(generics.GenericAPIView):
     permission_classes = (permissions.AllowAny,)
+    serializer_class = SupabaseGoogleLoginSerializer
 
-    def get(self, request):
-        client_id = settings.SOCIALACCOUNT_PROVIDERS["google"]["APP"]["client_id"]
-        redirect_uri = f"{request.scheme}://{request.get_host()}/api/auth/google/login/callback/"
-        google_auth_url = (
-            "https://accounts.google.com/o/oauth2/v2/auth?"
-            f"client_id={client_id}&redirect_uri={redirect_uri}"
-            "&response_type=code&scope=openid%20email%20profile"
-        )
-        return redirect(google_auth_url)
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        access_token = serializer.validated_data["access_token"]
+        
+        try:
+            res = supabase.auth.get_user(access_token)
+            user_data = res.user
+            email = user_data.email
+            if not email:
+                raise Exception("Email not provided by Supabase auth.")
+        except Exception as e:
+            logger.error("Supabase auth error: %s", e)
+            return Response({"detail": "Invalid or expired token."}, status=status.HTTP_401_UNAUTHORIZED)
+            
+        user, created = User.objects.get_or_create(email=email)
+        if created:
+            user.set_unusable_password()
+            user.save()
+            
+        if not user.is_active:
+            return Response({"detail": "Account disabled."}, status=status.HTTP_403_FORBIDDEN)
+            
+        profile, _ = Profile.objects.get_or_create(user=user)
+        profile.bump_token_version()
+        
+        refresh = RefreshToken.for_user(user)
+        refresh["token_version"] = profile.token_version
+        
+        return Response({
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+            "user": UserSerializer(user).data,
+        }, status=status.HTTP_200_OK)
 
 
 def _send_reset_otp_email(to_email, code):
