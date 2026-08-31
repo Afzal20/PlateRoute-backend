@@ -1,15 +1,16 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin, TabularInline
 
 from .models import IdempotencyRecord, Order, OrderEvent, OrderItem
 
 
-class OrderItemInline(admin.TabularInline):
+class OrderItemInline(TabularInline):
     model = OrderItem
     extra = 0
     readonly_fields = ("menu_item_ref", "title_snapshot", "qty", "unit_price_minor", "options", "line_total_minor")
 
 
-class OrderEventInline(admin.TabularInline):
+class OrderEventInline(TabularInline):
     model = OrderEvent
     extra = 0
     ordering = ("seq",)
@@ -21,7 +22,7 @@ class OrderEventInline(admin.TabularInline):
 
 
 @admin.register(Order)
-class OrderAdmin(admin.ModelAdmin):
+class OrderAdmin(ModelAdmin):
     list_display = ("id", "uuid", "customer", "branch", "status", "grand_total_minor",
                     "currency", "placed_at", "delivered_at")
     list_filter = ("status", "currency", "branch__city")
@@ -42,7 +43,7 @@ class OrderAdmin(admin.ModelAdmin):
 
 
 @admin.register(OrderEvent)
-class OrderEventAdmin(admin.ModelAdmin):
+class OrderEventAdmin(ModelAdmin):
     list_display = ("order", "seq", "from_status", "to_status", "actor_type", "actor_id", "reason", "created_at")
     list_filter = ("actor_type", "to_status")
     search_fields = ("order__uuid", "reason")
@@ -57,7 +58,7 @@ class OrderEventAdmin(admin.ModelAdmin):
 
 
 @admin.register(IdempotencyRecord)
-class IdempotencyRecordAdmin(admin.ModelAdmin):
+class IdempotencyRecordAdmin(ModelAdmin):
     list_display = ("user", "key", "endpoint", "status_code", "created_at")
     list_filter = ("endpoint",)
     search_fields = ("user__email", "key")

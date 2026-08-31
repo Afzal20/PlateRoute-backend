@@ -1,26 +1,27 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin, TabularInline, StackedInline
 
 from .models import Branch, BranchHours, Closure, Vendor, VendorStaff
 
 
-class BranchHoursInline(admin.TabularInline):
+class BranchHoursInline(TabularInline):
     model = BranchHours
     extra = 0
 
 
-class VendorStaffInline(admin.TabularInline):
+class VendorStaffInline(TabularInline):
     model = VendorStaff
     extra = 0
 
 
-class BranchInline(admin.StackedInline):
+class BranchInline(StackedInline):
     model = Branch
     extra = 0
     show_change_link = True
 
 
 @admin.register(Vendor)
-class VendorAdmin(admin.ModelAdmin):
+class VendorAdmin(ModelAdmin):
     """FR-CAT-02: superadmin approval workflow lives here."""
 
     list_display = ("name", "slug", "owner", "status", "commission_bp", "city_preview")
@@ -44,7 +45,7 @@ class VendorAdmin(admin.ModelAdmin):
 
 
 @admin.register(Branch)
-class BranchAdmin(admin.ModelAdmin):
+class BranchAdmin(ModelAdmin):
     list_display = ("name", "vendor", "city", "phone", "is_accepting", "prep_minutes",
                     "min_order_minor", "avg_rating", "rating_count")
     list_filter = ("city", "is_accepting")
@@ -54,7 +55,7 @@ class BranchAdmin(admin.ModelAdmin):
 
 
 @admin.register(Closure)
-class ClosureAdmin(admin.ModelAdmin):
+class ClosureAdmin(ModelAdmin):
     list_display = ("branch", "starts_at", "ends_at", "reason")
     list_filter = ("branch",)
     search_fields = ("branch__name", "reason")
@@ -62,7 +63,7 @@ class ClosureAdmin(admin.ModelAdmin):
 
 
 @admin.register(VendorStaff)
-class VendorStaffAdmin(admin.ModelAdmin):
+class VendorStaffAdmin(ModelAdmin):
     list_display = ("user", "branch", "role", "invited_by")
     list_filter = ("role", "branch")
     search_fields = ("user__email", "branch__name")

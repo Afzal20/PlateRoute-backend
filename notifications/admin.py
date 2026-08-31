@@ -1,25 +1,26 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin
 
 from .models import (DeviceRegistry, NotificationOutbox, NotificationPreference,
                      NotificationTemplate)
 
 
 @admin.register(NotificationTemplate)
-class NotificationTemplateAdmin(admin.ModelAdmin):
+class NotificationTemplateAdmin(ModelAdmin):
     list_display = ("code", "channel", "locale", "active")
     list_filter = ("channel", "locale", "active")
     search_fields = ("code", "subject", "body")
 
 
 @admin.register(DeviceRegistry)
-class DeviceRegistryAdmin(admin.ModelAdmin):
+class DeviceRegistryAdmin(ModelAdmin):
     list_display = ("user", "platform", "app_version", "last_seen_at")
     list_filter = ("platform",)
     search_fields = ("user__email", "fcm_token")
 
 
 @admin.register(NotificationOutbox)
-class NotificationOutboxAdmin(admin.ModelAdmin):
+class NotificationOutboxAdmin(ModelAdmin):
     """Backlog monitor: queued/failed rows are the pager signal (§12)."""
 
     list_display = ("channel", "recipient_user", "template", "state", "attempts",
@@ -37,7 +38,7 @@ class NotificationOutboxAdmin(admin.ModelAdmin):
 
 
 @admin.register(NotificationPreference)
-class NotificationPreferenceAdmin(admin.ModelAdmin):
+class NotificationPreferenceAdmin(ModelAdmin):
     list_display = ("user", "kind", "email", "push", "sms")
     list_filter = ("kind", "email", "push", "sms")
     search_fields = ("user__email",)

@@ -1,10 +1,11 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin
 
 from .models import Invoice, LedgerEntry, Payment, Refund, WebhookEvent
 
 
 @admin.register(Payment)
-class PaymentAdmin(admin.ModelAdmin):
+class PaymentAdmin(ModelAdmin):
     list_display = ("order", "gateway", "amount_minor", "currency", "state", "brand_last4", "captured_at")
     list_filter = ("gateway", "state", "currency")
     search_fields = ("order__uuid", "gateway_reference", "order__customer__email")
@@ -19,7 +20,7 @@ class PaymentAdmin(admin.ModelAdmin):
 
 
 @admin.register(Refund)
-class RefundAdmin(admin.ModelAdmin):
+class RefundAdmin(ModelAdmin):
     list_display = ("payment", "amount_minor", "reason", "state", "requested_by", "approved_by", "processed_at")
     list_filter = ("state", "reason")
     search_fields = ("payment__order__uuid", "requested_by__email")
@@ -30,7 +31,7 @@ class RefundAdmin(admin.ModelAdmin):
 
 
 @admin.register(LedgerEntry)
-class LedgerEntryAdmin(admin.ModelAdmin):
+class LedgerEntryAdmin(ModelAdmin):
     """FR-ADM-04: the money record — strictly inspect-only."""
 
     list_display = ("entry_type", "order", "payee_type", "payee_id", "amount_minor", "currency", "batch_uuid", "created_at")
@@ -47,7 +48,7 @@ class LedgerEntryAdmin(admin.ModelAdmin):
 
 
 @admin.register(Invoice)
-class InvoiceAdmin(admin.ModelAdmin):
+class InvoiceAdmin(ModelAdmin):
     list_display = ("full_number", "order", "series", "number", "issued_at")
     search_fields = ("full_number", "order__uuid", "order__customer__email")
     readonly_fields = ("order", "series", "number", "full_number", "issued_at")
@@ -57,7 +58,7 @@ class InvoiceAdmin(admin.ModelAdmin):
 
 
 @admin.register(WebhookEvent)
-class WebhookEventAdmin(admin.ModelAdmin):
+class WebhookEventAdmin(ModelAdmin):
     """Dead-letter inspection for FR-PAY-03 retries."""
 
     list_display = ("provider", "event_id", "state", "retries", "received_at")

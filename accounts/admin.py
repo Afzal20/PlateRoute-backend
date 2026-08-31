@@ -1,4 +1,5 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 from .models import PasswordResetOTP, Profile, User
@@ -24,14 +25,14 @@ class UserAdmin(BaseUserAdmin):
 
 
 @admin.register(Profile)
-class ProfileAdmin(admin.ModelAdmin):
+class ProfileAdmin(ModelAdmin):
     list_display = ("user", "token_version")
     search_fields = ("user__email",)
     readonly_fields = ("token_version",)
 
 
 @admin.register(PasswordResetOTP)
-class PasswordResetOTPAdmin(admin.ModelAdmin):
+class PasswordResetOTPAdmin(ModelAdmin):
     """Sensitive: hashed codes are never editable, only inspectable."""
 
     list_display = ("user", "created_at", "expires_at", "used")

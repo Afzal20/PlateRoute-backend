@@ -1,9 +1,10 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin, TabularInline
 
 from .models import CallEvent, CallSession
 
 
-class CallEventInline(admin.TabularInline):
+class CallEventInline(TabularInline):
     model = CallEvent
     extra = 0
     ordering = ("occurred_at",)
@@ -15,7 +16,7 @@ class CallEventInline(admin.TabularInline):
 
 
 @admin.register(CallSession)
-class CallSessionAdmin(admin.ModelAdmin):
+class CallSessionAdmin(ModelAdmin):
     """§11 metadata-only calls: no audio exists to inspect, just lifecycle."""
 
     list_display = ("id", "room_name", "initiator", "callee", "status", "connected_at", "ended_at")
@@ -34,7 +35,7 @@ class CallSessionAdmin(admin.ModelAdmin):
 
 
 @admin.register(CallEvent)
-class CallEventAdmin(admin.ModelAdmin):
+class CallEventAdmin(ModelAdmin):
     list_display = ("session", "type", "source", "occurred_at")
     list_filter = ("type", "source")
     search_fields = ("session__room_name",)

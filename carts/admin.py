@@ -1,16 +1,17 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin, TabularInline
 
 from .models import Cart, CartItem
 
 
-class CartItemInline(admin.TabularInline):
+class CartItemInline(TabularInline):
     model = CartItem
     extra = 0
     readonly_fields = ("title_snapshot", "unit_price_snapshot_minor", "line_total_minor", "selected_options")
 
 
 @admin.register(Cart)
-class CartAdmin(admin.ModelAdmin):
+class CartAdmin(ModelAdmin):
     list_display = ("user", "branch", "items_total", "updated_at")
     search_fields = ("user__email", "branch__name")
     list_filter = ("branch",)
@@ -26,7 +27,7 @@ class CartAdmin(admin.ModelAdmin):
 
 
 @admin.register(CartItem)
-class CartItemAdmin(admin.ModelAdmin):
+class CartItemAdmin(ModelAdmin):
     """Inspect-only: snapshots are frozen by the pricing service."""
 
     list_display = ("cart", "title_snapshot", "qty", "unit_price_snapshot_minor", "line_total_minor")

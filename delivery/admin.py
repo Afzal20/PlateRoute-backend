@@ -1,10 +1,11 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin
 
 from .models import CourierProfile, DeliveryOffer, DeliveryTask, LocationPing
 
 
 @admin.register(CourierProfile)
-class CourierProfileAdmin(admin.ModelAdmin):
+class CourierProfileAdmin(ModelAdmin):
     list_display = ("user", "vehicle", "plate", "is_online", "last_online_at")
     list_filter = ("vehicle", "is_online")
     search_fields = ("user__email", "plate", "license")
@@ -12,7 +13,7 @@ class CourierProfileAdmin(admin.ModelAdmin):
 
 
 @admin.register(DeliveryTask)
-class DeliveryTaskAdmin(admin.ModelAdmin):
+class DeliveryTaskAdmin(ModelAdmin):
     list_display = ("order", "state", "courier", "courier_fee_minor", "promised_eta_minutes", "created_at")
     list_filter = ("state", "courier__vehicle")
     search_fields = ("order__uuid", "courier__user__email")
@@ -31,7 +32,7 @@ class DeliveryTaskAdmin(admin.ModelAdmin):
 
 
 @admin.register(DeliveryOffer)
-class DeliveryOfferAdmin(admin.ModelAdmin):
+class DeliveryOfferAdmin(ModelAdmin):
     list_display = ("task", "courier", "state", "expires_at", "response_ms", "created_at")
     list_filter = ("state", "courier__vehicle")
     search_fields = ("task__order__uuid", "courier__user__email")
@@ -42,7 +43,7 @@ class DeliveryOfferAdmin(admin.ModelAdmin):
 
 
 @admin.register(LocationPing)
-class LocationPingAdmin(admin.ModelAdmin):
+class LocationPingAdmin(ModelAdmin):
     """Retention-managed telemetry (NFR-13/16); inspect, never edit."""
 
     list_display = ("courier", "task", "lat", "lng", "speed_mps", "heading_deg", "recorded_at")

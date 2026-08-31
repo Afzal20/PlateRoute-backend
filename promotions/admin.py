@@ -1,10 +1,11 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin
 
 from .models import Coupon, Redemption
 
 
 @admin.register(Coupon)
-class CouponAdmin(admin.ModelAdmin):
+class CouponAdmin(ModelAdmin):
     list_display = ("code", "kind", "value", "branch", "starts_at", "ends_at",
                     "max_redemptions", "per_user_limit", "active")
     list_filter = ("kind", "active", "branch")
@@ -16,7 +17,7 @@ class CouponAdmin(admin.ModelAdmin):
 
 
 @admin.register(Redemption)
-class RedemptionAdmin(admin.ModelAdmin):
+class RedemptionAdmin(ModelAdmin):
     """Financial record: read-only, like ledger rows."""
 
     list_display = ("coupon", "user", "order_id", "redeemed_at")

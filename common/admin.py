@@ -1,10 +1,11 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin
 
 from .models import OutboxMessage, RuntimeConfig
 
 
 @admin.register(RuntimeConfig)
-class RuntimeConfigAdmin(admin.ModelAdmin):
+class RuntimeConfigAdmin(ModelAdmin):
     list_display = ("key", "value", "version", "description")
     search_fields = ("key", "description")
     ordering = ("key",)
@@ -12,7 +13,7 @@ class RuntimeConfigAdmin(admin.ModelAdmin):
 
 
 @admin.register(OutboxMessage)
-class OutboxMessageAdmin(admin.ModelAdmin):
+class OutboxMessageAdmin(ModelAdmin):
     """Append-only audit of domain events; nothing is editable here."""
 
     list_display = ("kind", "created_at", "processed_at")

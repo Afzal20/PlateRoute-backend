@@ -1,16 +1,17 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin, TabularInline
 from django.utils import timezone
 
 from .models import Message, Participant, Report, Thread
 
 
-class ParticipantInline(admin.TabularInline):
+class ParticipantInline(TabularInline):
     model = Participant
     extra = 0
 
 
 @admin.register(Thread)
-class ThreadAdmin(admin.ModelAdmin):
+class ThreadAdmin(ModelAdmin):
     list_display = ("uuid", "kind", "subject", "order", "message_count", "last_message_at", "closed_at")
     list_filter = ("kind", "closed_at")
     search_fields = ("subject", "order__uuid", "participants__user__email")
@@ -21,7 +22,7 @@ class ThreadAdmin(admin.ModelAdmin):
 
 
 @admin.register(Message)
-class MessageAdmin(admin.ModelAdmin):
+class MessageAdmin(ModelAdmin):
     """Moderation screen: hide/restore bodies, never rewrite history."""
 
     list_display = ("id", "thread", "sender", "kind", "short_body", "hidden_at", "created_at")
@@ -45,14 +46,14 @@ class MessageAdmin(admin.ModelAdmin):
 
 
 @admin.register(Participant)
-class ParticipantAdmin(admin.ModelAdmin):
+class ParticipantAdmin(ModelAdmin):
     list_display = ("user", "thread", "role", "last_read_message_id", "left_at", "muted_until")
     list_filter = ("role", "thread__kind")
     search_fields = ("user__email", "thread__subject")
 
 
 @admin.register(Report)
-class ReportAdmin(admin.ModelAdmin):
+class ReportAdmin(ModelAdmin):
     """Operator queue for chat abuse reports (outcome + resolver audited)."""
 
     list_display = ("message", "reported_by", "reason", "outcome", "resolved_by", "created_at")
