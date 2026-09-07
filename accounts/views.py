@@ -17,10 +17,9 @@ from .serializers import (
     RoleOnboardSerializer,
     TokenObtainSerializer,
     UserSerializer,
-    SupabaseGoogleLoginSerializer,
+    GoogleLoginSerializer,
 )
 from rest_framework_simplejwt.tokens import RefreshToken
-from core.supabase import supabase
 from .throttles import (
     LoginThrottle,
     PasswordResetConfirmThrottle,
@@ -92,38 +91,48 @@ class LogoutAllView(generics.GenericAPIView):
 
 
 class GoogleLoginView(generics.GenericAPIView):
+    """Google SSO without Supabase: the app sends the Google ID token it
+    obtained via google_sign_in; we verify it against Google directly and
+    issue our own JWT pair (same shape as password login)."""
+
     permission_classes = (permissions.AllowAny,)
-    serializer_class = SupabaseGoogleLoginSerializer
+    serializer_class = GoogleLoginSerializer
 
     def post(self, request):
+        from google.auth.transport import requests as google_requests
+        from google.oauth2 import id_token as google_id_token
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        access_token = serializer.validated_data["access_token"]
-        
+
         try:
-            res = supabase.auth.get_user(access_token)
-            user_data = res.user
-            email = user_data.email
-            if not email:
-                raise Exception("Email not provided by Supabase auth.")
-        except Exception as e:
-            logger.error("Supabase auth error: %s", e)
+            info = google_id_token.verify_oauth2_token(
+                serializer.validated_data["id_token"],
+                google_requests.Request(),
+                settings.GOOGLE_CLIENT_ID,
+            )
+        except ValueError as e:
+            logger.warning("Google token verify failed: %s", e)
             return Response({"detail": "Invalid or expired token."}, status=status.HTTP_401_UNAUTHORIZED)
-            
+
+        email = info.get("email", "")
+        if not email or not info.get("email_verified"):
+            return Response({"detail": "Google email not verified."}, status=status.HTTP_403_FORBIDDEN)
+
         user, created = User.objects.get_or_create(email=email)
         if created:
             user.set_unusable_password()
             user.save()
-            
+
         if not user.is_active:
             return Response({"detail": "Account disabled."}, status=status.HTTP_403_FORBIDDEN)
-            
+
         profile, _ = Profile.objects.get_or_create(user=user)
         profile.bump_token_version()
-        
+
         refresh = RefreshToken.for_user(user)
         refresh["token_version"] = profile.token_version
-        
+
         return Response({
             "refresh": str(refresh),
             "access": str(refresh.access_token),

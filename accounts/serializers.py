@@ -106,5 +106,7 @@ class PasswordResetOTPConfirmSerializer(serializers.Serializer):
     new_password = serializers.CharField(write_only=True, validators=[validate_password])
 
 
-class SupabaseGoogleLoginSerializer(serializers.Serializer):
-    access_token = serializers.CharField(required=True)
+class GoogleLoginSerializer(serializers.Serializer):
+    """Google ID token minted by the mobile app via google_sign_in."""
+
+    id_token = serializers.CharField(required=True)

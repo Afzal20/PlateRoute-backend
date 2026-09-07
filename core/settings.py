@@ -223,6 +223,9 @@ ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
 ACCOUNT_UNIQUE_EMAIL = True
 
 # Google SSO
+# Web (server) OAuth client id. Mobile apps send the Google ID token they
+# obtain via google_sign_in; GoogleLoginView verifies it against this id.
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
         "APP": {
