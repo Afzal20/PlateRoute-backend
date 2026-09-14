@@ -11,7 +11,8 @@ uv sync                       # install deps (uv-managed, package=false)
 cp .env.example .env          # then set DJANGO_SECRET_KEY
 python manage.py migrate
 python manage.py runserver
-python manage.py test         # 87 tests
+python manage.py test         # 103 tests
+uv run python tests/test_api_smoke.py   # live API smoke (needs runserver above)
 ```
 
 ## The 18 apps (docs/ARCHITECTURE.md §4)
