@@ -86,13 +86,41 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "core.wsgi.application"
 
+# Supabase PostgreSQL Database Configuration
+# Connects to Supabase local Docker container by default (port 54322) or DATABASE_URL / SUPABASE_DB_* if configured.
+SUPABASE_DB_URL = os.environ.get(
+    "DATABASE_URL",
+    os.environ.get(
+        "SUPABASE_DB_URL",
+        f"postgresql://{os.environ.get('SUPABASE_DB_USER', 'postgres')}:{os.environ.get('SUPABASE_DB_PASSWORD', 'postgres')}@{os.environ.get('SUPABASE_DB_HOST', '127.0.0.1')}:{os.environ.get('SUPABASE_DB_PORT', '54322')}/{os.environ.get('SUPABASE_DB_NAME', 'postgres')}"
+    )
+)
+
 DATABASES = {
     "default": dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        default=SUPABASE_DB_URL,
         conn_max_age=600,
         conn_health_checks=True,
     )
 }
+
+# Supabase API Settings
+SUPABASE_URL = os.environ.get(
+    "SUPABASE_URL",
+    os.environ.get("NEXT_PUBLIC_SUPABASE_URL", "http://127.0.0.1:54321")
+)
+SUPABASE_ANON_KEY = os.environ.get(
+    "SUPABASE_ANON_KEY",
+    os.environ.get(
+        "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0"
+    )
+)
+SUPABASE_SERVICE_ROLE_KEY = os.environ.get(
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU"
+)
+
 
 # Redis Cache configuration
 if os.environ.get("REDIS_URL"):
