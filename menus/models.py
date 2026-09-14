@@ -23,6 +23,7 @@ class Item(TimeStampedModel):
     name = models.CharField(max_length=150)
     description = models.TextField(blank=True)
     image_url = models.URLField(blank=True)
+    extra_images = models.JSONField(default=list, blank=True)
     base_price_minor = models.BigIntegerField(validators=[MinValueValidator(0)])
     currency = models.CharField(max_length=3, default="BDT")
     available = models.BooleanField(default=True)
