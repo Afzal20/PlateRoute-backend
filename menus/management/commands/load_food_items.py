@@ -39,9 +39,16 @@ class Command(BaseCommand):
 
         self.stdout.write(f"Distributing 200 items across {len(branches)} vendor branches.")
 
+        # Purge old fake demo items that have invalid/garbage image URLs
+        invalid_items = Item.objects.exclude(image_url__startswith="http").exclude(image_url__startswith="/media")
+        if invalid_items.exists():
+            deleted_count = invalid_items.count()
+            invalid_items.delete()
+            self.stdout.write(f"Purged {deleted_count} old demo items with invalid image URLs.")
+
         if options["clear"]:
-            self.stdout.write("Clearing existing items in target categories...")
-            Category.objects.filter(branch__in=branches).delete()
+            self.stdout.write("Clearing all existing items before reload...")
+            Item.objects.all().delete()
 
         created_items_count = 0
         created_categories_count = 0
@@ -60,14 +67,20 @@ class Command(BaseCommand):
                 if cat_created:
                     created_categories_count += 1
 
+                # Prioritize full HTTPS remote URL so image_url is an authentic web URL
+                remote_url = food.get("remote_primary_image") or food.get("image_url", "")
+                local_path = food.get("image_url", "")
+                extra_urls = food.get("remote_extra_images") or food.get("extra_images", [])
+
                 item, item_created = Item.objects.update_or_create(
                     branch=branch,
                     name=food["name"],
                     defaults={
                         "category": category,
                         "description": food.get("description", ""),
-                        "image_url": food.get("image_url", ""),
-                        "extra_images": food.get("extra_images", []),
+                        "image_url": remote_url,
+                        "local_image_url": local_path,
+                        "extra_images": extra_urls,
                         "base_price_minor": food.get("base_price_minor", 25000),
                         "currency": food.get("currency", "BDT"),
                         "available": True,

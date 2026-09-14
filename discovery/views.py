@@ -63,7 +63,8 @@ class RestaurantViewSet(viewsets.ViewSet):
                     "items": [
                         {
                             "uuid": str(item.uuid), "name": item.name, "description": item.description,
-                            "image_url": item.image_url, "extra_images": item.extra_images,
+                            "image_url": item.image_url, "local_image_url": item.local_image_url,
+                            "extra_images": item.extra_images,
                             "base_price_minor": item.base_price_minor,
                             "currency": item.currency,
                             "groups": [

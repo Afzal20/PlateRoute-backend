@@ -10,9 +10,12 @@ class NotificationTests(TestCase):
     """"FR-NOT-01/02 + FR-AUTH-10": outbox funnel, devices, preferences."""
 
     def setUp(self):
-        self.template = NotificationTemplate.objects.create(
-            code="order_placed_vendor", channel="email", subject="Order {order_pk}",
-            body="You have order #{order_pk} for ${total}.")
+        # The 0002 data migration seeds this code in every environment; keep
+        # the exact body this suite asserts on via update_or_create.
+        self.template, _ = NotificationTemplate.objects.update_or_create(
+            code="order_placed_vendor",
+            defaults=dict(channel="email", subject="Order {order_pk}",
+                          body="You have order #{order_pk} for ${total}."))
         self.user = make_user("notif@test.io")
 
     def test_enqueue_and_send_via_worker(self):

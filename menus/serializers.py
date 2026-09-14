@@ -40,7 +40,7 @@ class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
         fields = ("uuid", "category", "category_name", "branch", "name", "description", "image_url",
-                  "extra_images", "base_price_minor", "currency", "available", "sort_key", "groups")
+                  "local_image_url", "extra_images", "base_price_minor", "currency", "available", "sort_key", "groups")
 
     @transaction.atomic
     def create(self, validated):

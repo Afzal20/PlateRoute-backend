@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.html import format_html
 from unfold.admin import ModelAdmin, TabularInline
 
 from .models import Category, Item, Option, OptionGroup
@@ -19,6 +20,15 @@ class ItemInline(TabularInline):
     model = Item
     extra = 0
     show_change_link = True
+    fields = ("image_preview", "name", "base_price_minor", "currency", "available")
+    readonly_fields = ("image_preview",)
+
+    def image_preview(self, obj):
+        url = obj.image_url or obj.local_image_url
+        if url:
+            return format_html('<img src="{}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;" />', url)
+        return "-"
+    image_preview.short_description = "Image"
 
 
 @admin.register(Category)
@@ -33,11 +43,18 @@ class CategoryAdmin(ModelAdmin):
 
 @admin.register(Item)
 class ItemAdmin(ModelAdmin):
-    list_display = ("name", "branch", "base_price_minor", "currency", "available", "sort_key")
-    list_filter = ("branch", "available", "currency")
+    list_display = ("image_preview", "name", "category", "branch", "base_price_minor", "currency", "available", "sort_key")
+    list_filter = ("branch", "available", "currency", "category")
     search_fields = ("name", "description", "branch__name", "branch__vendor__name")
-    readonly_fields = ("uuid", "branch", "created_at", "updated_at")
+    readonly_fields = ("uuid", "branch", "image_preview", "created_at", "updated_at")
     inlines = (OptionGroupInline,)
+
+    def image_preview(self, obj):
+        url = obj.image_url or obj.local_image_url
+        if url:
+            return format_html('<img src="{}" style="width: 48px; height: 48px; object-fit: cover; border-radius: 8px;" />', url)
+        return "-"
+    image_preview.short_description = "Image"
 
 
 @admin.register(OptionGroup)
